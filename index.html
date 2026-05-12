@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no"
+  />
+
+  <title>MindAR Multi Targets PRO</title>
+
+  <!-- AFRAME -->
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+  <!-- MINDAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+      background: #000;
+    }
+
+    #loadingScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: linear-gradient(180deg, #050505, #111);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: opacity 0.4s ease;
+    }
+
+    #loadingScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 5px solid rgba(255,255,255,0.15);
+      border-top: 5px solid white;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .scanText {
+      font-size: 18px;
+      letter-spacing: 1px;
+      opacity: 0.9;
+    }
+
+    #targetInfo {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 15px;
+      font-size: 15px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+
+    #targetInfo.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOADING -->
+  <div id="loadingScreen">
+    <div class="loader"></div>
+    <div class="scanText">Iniciando experiencia AR...</div>
+  </div>
+
+  <!-- INFO -->
+  <div id="targetInfo"></div>
+
+  <!-- ASSETS -->
+  <a-scene
+    mindar-image="
+      imageTargetSrc: ./targets/teclado.mind;
+      maxTrack: 2;
+      filterMinCF: 0.0001;
+      filterBeta: 0.001;
+      warmupTolerance: 5;
+      missTolerance: 10;
+    "
+    color-space="sRGB"
+    renderer="
+      colorManagement: true;
+      physicallyCorrectLights: true;
+      antialias: true;
+      alpha: true;
+    "
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    embedded
+  >
+
+    <!-- ASSETS -->
+    <a-assets timeout="30000">
+
+      <!-- VIDEO TARGET 1 -->
+      <video
+        id="video1"
+        src="./assets/videos/video1.webm"
+        preload="none"
+        autoplay
+        muted
+        loop
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous"
+      ></video>
+
+      <!-- VIDEO TARGET 2 -->
+      <video
+        id="video2"
+        src="./assets/videos/video2.webm"
+        preload="none"
+        autoplay
+        muted
+        loop
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous"
+      ></video>
+
+      <!-- MODELO 3D -->
+      <a-asset-item
+        id="robotModel"
+        src="./assets/models/robot.glb"
+      ></a-asset-item>
+
+    </a-assets>
+
+    <!-- CAMARA -->
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- LUCES -->
+    <a-light type="ambient" intensity="1"></a-light>
+
+    <a-light
+      type="directional"
+      intensity="0.8"
+      position="1 2 1"
+    ></a-light>
+
+    <!-- TARGET 0 -->
+    <a-entity
+      id="target0"
+      mindar-image-target="targetIndex: 0"
+      target-handler="name: Producto Premium"
+    >
+
+      <a-plane
+        width="1"
+        height="0.56"
+        position="0 0 0"
+        material="
+          shader: flat;
+          src: #video1;
+          transparent: true;
+        "
+      ></a-plane>
+
+    </a-entity>
+
+    <!-- TARGET 1 -->
+    <a-entity
+      id="target1"
+      mindar-image-target="targetIndex: 1"
+      target-handler="name: Robot 3D"
+    >
+
+      <a-gltf-model
+        src="#robotModel"
+        position="0 -0.3 0"
+        scale="0.4 0.4 0.4"
+        rotation="0 0 0"
+        animation-mixer
+      ></a-gltf-model>
+
+    </a-entity>
+
+    <!-- TARGET 2 -->
+    <a-entity
+      id="target2"
+      mindar-image-target="targetIndex: 2"
+      target-handler="name: Video Corporativo"
+    >
+
+      <a-plane
+        width="1"
+        height="0.56"
+        position="0 0 0"
+        material="
+          shader: flat;
+          src: #video2;
+          transparent: true;
+        "
+      ></a-plane>
+
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+
+    // =========================
+    // UI
+    // =========================
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const targetInfo = document.getElementById("targetInfo");
+
+    // =========================
+    // ESPERAR CARGA
+    // =========================
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        loadingScreen.classList.add("hidden");
+      }, 2000);
+    });
+
+    // =========================
+    // COMPONENTE PRO
+    // =========================
+
+    AFRAME.registerComponent("target-handler", {
+
+      schema: {
+        name: { type: "string" }
+      },
+
+      init() {
+
+        const el = this.el;
+
+        const name = this.data.name;
+
+        const videos = el.querySelectorAll("video");
+
+        el.addEventListener("targetFound", () => {
+
+          console.log("TARGET DETECTADO:", name);
+
+          // Vibración
+          if (navigator.vibrate) {
+            navigator.vibrate(100);
+          }
+
+          // Mostrar UI
+          targetInfo.innerHTML = `Detectado: ${name}`;
+          targetInfo.classList.add("show");
+
+          // Reproducir videos internos
+          document.querySelectorAll("video").forEach((video) => {
+            video.play().catch(() => {});
+          });
+
+        });
+
+        el.addEventListener("targetLost", () => {
+
+          console.log("TARGET PERDIDO:", name);
+
+          targetInfo.classList.remove("show");
+
+        });
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
