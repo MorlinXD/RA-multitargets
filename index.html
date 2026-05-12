@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
   <meta charset="UTF-8" />
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, user-scalable=no"
+    content="
+      width=device-width,
+      initial-scale=1,
+      maximum-scale=1,
+      user-scalable=no,
+      viewport-fit=cover
+    "
   />
 
-  <title>MindAR PRO</title>
+  <title>MindAR MultiTarget PRO</title>
 
   <!-- AFRAME -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -18,10 +25,32 @@
 
   <style>
 
+    html,
     body {
       margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       background: black;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+    }
+
+    a-scene {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+
+    canvas {
+      width: 100vw !important;
+      height: 100vh !important;
+      object-fit: cover;
     }
 
     #overlay {
@@ -31,9 +60,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-family: Arial;
+      flex-direction: column;
       background: rgba(0,0,0,0.85);
+      color: white;
+      font-family: Arial, sans-serif;
       transition: .4s;
     }
 
@@ -42,38 +72,99 @@
       pointer-events: none;
     }
 
+    .loader {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 5px solid rgba(255,255,255,.2);
+      border-top: 5px solid white;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .text {
+      font-size: 18px;
+      letter-spacing: 1px;
+    }
+
+    #status {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      background: rgba(0,0,0,.7);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-family: Arial;
+      font-size: 14px;
+      opacity: 0;
+      transition: .3s;
+      backdrop-filter: blur(10px);
+    }
+
+    #status.show {
+      opacity: 1;
+    }
+
   </style>
+
 </head>
 
 <body>
 
+<!-- OVERLAY -->
 <div id="overlay">
-  Escaneando marcador...
+
+  <div class="loader"></div>
+
+  <div class="text">
+    Escaneando marcador...
+  </div>
+
 </div>
 
+<!-- STATUS -->
+<div id="status"></div>
+
+<!-- SCENE -->
 <a-scene
+
   mindar-image="
     imageTargetSrc: ./targets/teclado.mind;
     maxTrack: 2;
     filterMinCF: 0.0001;
     filterBeta: 0.001;
+    warmupTolerance: 5;
+    missTolerance: 10;
   "
+
   color-space="sRGB"
+
   renderer="
-    colorManagement: true;
     physicallyCorrectLights: true;
+    colorManagement: true;
     antialias: true;
     alpha: true;
   "
+
   vr-mode-ui="enabled: false"
+
   device-orientation-permission-ui="enabled: false"
-  embedded
+
 >
 
   <!-- ASSETS -->
-  <a-assets>
+  <a-assets timeout="30000">
 
-    <!-- VIDEO -->
+    <!-- VIDEO 1 -->
     <video
       id="video1"
       src="./assets/videos/video1.mp4"
@@ -86,25 +177,60 @@
       crossorigin="anonymous"
     ></video>
 
+    <!-- VIDEO 2 -->
+    <video
+      id="video2"
+      src="./assets/videos/video2.mp4"
+      preload="auto"
+      autoplay
+      muted
+      loop
+      playsinline
+      webkit-playsinline
+      crossorigin="anonymous"
+    ></video>
+
   </a-assets>
 
   <!-- CAMERA -->
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <a-camera
+    position="0 0 0"
+    look-controls="enabled: false"
+  ></a-camera>
 
-  <!-- TARGET -->
+  <!-- TARGET 0 -->
   <a-entity
     mindar-image-target="targetIndex: 0"
-    target-video
+    target-handler="name: Producto Premium"
   >
 
-    <!-- VIDEO -->
-    <a-video
-      id="videoPlane"
-      src="#video1"
+    <a-plane
       width="1"
       height="0.56"
       position="0 0 0"
-    ></a-video>
+      material="
+        shader: flat;
+        src: #video1;
+      "
+    ></a-plane>
+
+  </a-entity>
+
+  <!-- TARGET 1 -->
+  <a-entity
+    mindar-image-target="targetIndex: 1"
+    target-handler="name: Video Corporativo"
+  >
+
+    <a-plane
+      width="1"
+      height="0.56"
+      position="0 0 0"
+      material="
+        shader: flat;
+        src: #video2;
+      "
+    ></a-plane>
 
   </a-entity>
 
@@ -112,41 +238,64 @@
 
 <script>
 
-AFRAME.registerComponent("target-video", {
+const overlay = document.querySelector("#overlay");
+const statusBox = document.querySelector("#status");
+
+AFRAME.registerComponent("target-handler", {
+
+  schema: {
+    name: { type: "string" }
+  },
 
   init() {
 
-    const video = document.querySelector("#video1");
-
-    const overlay = document.querySelector("#overlay");
+    const name = this.data.name;
 
     this.el.addEventListener("targetFound", async () => {
 
-      console.log("TARGET DETECTADO");
+      console.log("TARGET DETECTADO:", name);
 
       overlay.classList.add("hidden");
 
-      try {
+      statusBox.innerHTML = name;
 
-        video.currentTime = 0;
+      statusBox.classList.add("show");
 
-        await video.play();
-
-        console.log("VIDEO REPRODUCIENDO");
-
-      } catch(e) {
-
-        console.log("ERROR VIDEO:", e);
-
+      // vibración
+      if (navigator.vibrate) {
+        navigator.vibrate(100);
       }
+
+      // reproducir TODOS los videos
+      document.querySelectorAll("video").forEach(async(video) => {
+
+        try {
+
+          video.currentTime = 0;
+
+          await video.play();
+
+        } catch(e) {
+
+          console.log("ERROR VIDEO:", e);
+
+        }
+
+      });
 
     });
 
     this.el.addEventListener("targetLost", () => {
 
-      console.log("TARGET PERDIDO");
+      console.log("TARGET PERDIDO:", name);
 
-      video.pause();
+      statusBox.classList.remove("show");
+
+      document.querySelectorAll("video").forEach((video) => {
+
+        video.pause();
+
+      });
 
     });
 
