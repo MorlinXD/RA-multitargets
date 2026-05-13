@@ -15,7 +15,7 @@
     "
   />
 
-  <title>MindAR MultiTarget PRO</title>
+  <title>MindAR MultiTarget</title>
 
   <!-- AFRAME -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -63,7 +63,7 @@
       flex-direction: column;
       background: rgba(0,0,0,0.85);
       color: white;
-      font-family: Arial, sans-serif;
+      font-family: Arial;
       transition: .4s;
     }
 
@@ -93,27 +93,6 @@
       letter-spacing: 1px;
     }
 
-    #status {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999;
-      background: rgba(0,0,0,.7);
-      color: white;
-      padding: 12px 18px;
-      border-radius: 14px;
-      font-family: Arial;
-      font-size: 14px;
-      opacity: 0;
-      transition: .3s;
-      backdrop-filter: blur(10px);
-    }
-
-    #status.show {
-      opacity: 1;
-    }
-
   </style>
 
 </head>
@@ -131,14 +110,11 @@
 
 </div>
 
-<!-- STATUS -->
-<div id="status"></div>
-
 <!-- SCENE -->
 <a-scene
 
   mindar-image="
-    imageTargetSrc: ./targets/teclado.mind;
+    imageTargetSrc: ./targets/targets.mind;
     maxTrack: 2;
     filterMinCF: 0.0001;
     filterBeta: 0.001;
@@ -164,10 +140,11 @@
   <!-- ASSETS -->
   <a-assets timeout="30000">
 
-    <!-- VIDEO 1 -->
+    <!-- VIDEOS -->
+
     <video
-      id="video1"
-      src="./assets/videos/video1.webm"
+      id="ninosVideo"
+      src="./assets/videos/ninos.webm"
       preload="auto"
       autoplay
       muted
@@ -177,10 +154,45 @@
       crossorigin="anonymous"
     ></video>
 
-    <!-- VIDEO 2 -->
     <video
-      id="video2"
-      src="./assets/videos/video2.mp4"
+      id="canoaVideo"
+      src="./assets/videos/canoa.webm"
+      preload="auto"
+      autoplay
+      muted
+      loop
+      playsinline
+      webkit-playsinline
+      crossorigin="anonymous"
+    ></video>
+
+    <video
+      id="cacaoVideo"
+      src="./assets/videos/cacao.webm"
+      preload="auto"
+      autoplay
+      muted
+      loop
+      playsinline
+      webkit-playsinline
+      crossorigin="anonymous"
+    ></video>
+
+    <video
+      id="manosVideo"
+      src="./assets/videos/manos.webm"
+      preload="auto"
+      autoplay
+      muted
+      loop
+      playsinline
+      webkit-playsinline
+      crossorigin="anonymous"
+    ></video>
+
+    <video
+      id="pajaroVideo"
+      src="./assets/videos/pajaro.webm"
       preload="auto"
       autoplay
       muted
@@ -198,37 +210,76 @@
     look-controls="enabled: false"
   ></a-camera>
 
-  <!-- TARGET 0 -->
-  <a-entity
-    mindar-image-target="targetIndex: 0"
-    target-handler="name: Producto Premium"
-  >
+  <!-- TARGET 0 - NINOS -->
+  <a-entity mindar-image-target="targetIndex: 0" video-handler>
 
     <a-plane
       width="1"
       height="0.56"
-      position="0 0 0"
       material="
         shader: flat;
-        src: #video1;
+        src: #ninosVideo;
+        transparent: true;
       "
     ></a-plane>
 
   </a-entity>
 
-  <!-- TARGET 1 -->
-  <a-entity
-    mindar-image-target="targetIndex: 1"
-    target-handler="name: Video Corporativo"
-  >
+  <!-- TARGET 1 - CANOA -->
+  <a-entity mindar-image-target="targetIndex: 1" video-handler>
 
     <a-plane
       width="1"
       height="0.56"
-      position="0 0 0"
       material="
         shader: flat;
-        src: #video2;
+        src: #canoaVideo;
+        transparent: true;
+      "
+    ></a-plane>
+
+  </a-entity>
+
+  <!-- TARGET 2 - CACAO -->
+  <a-entity mindar-image-target="targetIndex: 2" video-handler>
+
+    <a-plane
+      width="1"
+      height="0.56"
+      material="
+        shader: flat;
+        src: #cacaoVideo;
+        transparent: true;
+      "
+    ></a-plane>
+
+  </a-entity>
+
+  <!-- TARGET 3 - MANOS -->
+  <a-entity mindar-image-target="targetIndex: 3" video-handler>
+
+    <a-plane
+      width="1"
+      height="0.56"
+      material="
+        shader: flat;
+        src: #manosVideo;
+        transparent: true;
+      "
+    ></a-plane>
+
+  </a-entity>
+
+  <!-- TARGET 4 - PAJARO -->
+  <a-entity mindar-image-target="targetIndex: 4" video-handler>
+
+    <a-plane
+      width="1"
+      height="0.56"
+      material="
+        shader: flat;
+        src: #pajaroVideo;
+        transparent: true;
       "
     ></a-plane>
 
@@ -239,45 +290,43 @@
 <script>
 
 const overlay = document.querySelector("#overlay");
-const statusBox = document.querySelector("#status");
 
-AFRAME.registerComponent("target-handler", {
-
-  schema: {
-    name: { type: "string" }
-  },
+AFRAME.registerComponent("video-handler", {
 
   init() {
 
-    const name = this.data.name;
+    const videos = this.el.querySelectorAll("video");
 
     this.el.addEventListener("targetFound", async () => {
 
-      console.log("TARGET DETECTADO:", name);
+      console.log("TARGET DETECTADO");
 
       overlay.classList.add("hidden");
 
-      statusBox.innerHTML = name;
+      // reproducir video correspondiente
+      const materials = this.el.querySelectorAll("a-plane");
 
-      statusBox.classList.add("show");
+      materials.forEach(async(plane) => {
 
-      // vibración
-      if (navigator.vibrate) {
-        navigator.vibrate(100);
-      }
+        const material = plane.getAttribute("material");
 
-      // reproducir TODOS los videos
-      document.querySelectorAll("video").forEach(async(video) => {
+        const src = material.src;
 
-        try {
+        const video = document.querySelector(src);
 
-          video.currentTime = 0;
+        if(video){
 
-          await video.play();
+          try {
 
-        } catch(e) {
+            video.currentTime = 0;
 
-          console.log("ERROR VIDEO:", e);
+            await video.play();
+
+          } catch(e){
+
+            console.log(e);
+
+          }
 
         }
 
@@ -287,13 +336,21 @@ AFRAME.registerComponent("target-handler", {
 
     this.el.addEventListener("targetLost", () => {
 
-      console.log("TARGET PERDIDO:", name);
+      const materials = this.el.querySelectorAll("a-plane");
 
-      statusBox.classList.remove("show");
+      materials.forEach((plane) => {
 
-      document.querySelectorAll("video").forEach((video) => {
+        const material = plane.getAttribute("material");
 
-        video.pause();
+        const src = material.src;
+
+        const video = document.querySelector(src);
+
+        if(video){
+
+          video.pause();
+
+        }
 
       });
 
