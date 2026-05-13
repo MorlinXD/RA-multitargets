@@ -2,104 +2,125 @@
 <html lang="es">
 <head>
 
-  <meta charset="UTF-8" />
+<meta charset="UTF-8" />
 
-  <meta
-    name="viewport"
-    content="
-      width=device-width,
-      initial-scale=1,
-      maximum-scale=1,
-      user-scalable=no,
-      viewport-fit=cover
-    "
-  />
+<meta
+  name="viewport"
+  content="
+    width=device-width,
+    initial-scale=1,
+    maximum-scale=1,
+    user-scalable=no,
+    viewport-fit=cover
+  "
+/>
 
-  <title>MindAR MultiTarget</title>
+<title>MindAR MultiTarget PRO</title>
 
-  <!-- AFRAME -->
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<!-- AFRAME -->
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-  <!-- MINDAR -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<!-- MINDAR -->
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-  <style>
+<style>
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: black;
-    }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: black;
+}
 
-    body {
-      position: fixed;
-      inset: 0;
-    }
+body {
+  position: fixed;
+  inset: 0;
+}
 
-    a-scene {
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-    }
+a-scene {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
 
-    canvas {
-      width: 100vw !important;
-      height: 100vh !important;
-      object-fit: cover;
-    }
+canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover;
+}
 
-    #overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background: rgba(0,0,0,0.85);
-      color: white;
-      font-family: Arial;
-      transition: .4s;
-    }
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(0,0,0,.85);
+  color: white;
+  font-family: Arial;
+  transition: .4s;
+}
 
-    #overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+#overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 
-    .loader {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      border: 5px solid rgba(255,255,255,.2);
-      border-top: 5px solid white;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
+.loader {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 5px solid rgba(255,255,255,.2);
+  border-top: 5px solid white;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
-    .text {
-      font-size: 18px;
-      letter-spacing: 1px;
-    }
+.text {
+  font-size: 18px;
+  letter-spacing: 1px;
+}
 
-  </style>
+#status {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background: rgba(0,0,0,.7);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-family: Arial;
+  font-size: 14px;
+  opacity: 0;
+  transition: .3s;
+  backdrop-filter: blur(10px);
+}
+
+#status.show {
+  opacity: 1;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<!-- OVERLAY -->
+<!-- LOADING -->
 <div id="overlay">
 
   <div class="loader"></div>
@@ -109,6 +130,9 @@
   </div>
 
 </div>
+
+<!-- STATUS -->
+<div id="status"></div>
 
 <!-- SCENE -->
 <a-scene
@@ -137,222 +161,152 @@
 
 >
 
-  <!-- ASSETS -->
-  <a-assets timeout="30000">
+<!-- CAMERA -->
+<a-camera
+  position="0 0 0"
+  look-controls="enabled: false"
+></a-camera>
 
-    <!-- VIDEOS -->
+<!-- TARGET 0 -->
+<a-entity
+  mindar-image-target="targetIndex: 0"
+  dynamic-video="name: Ninos; src: ./assets/videos/ninos.webm"
+></a-entity>
 
-    <video
-      id="ninosVideo"
-      src="./assets/videos/ninos.webm"
-      preload="auto"
-      autoplay
-      muted
-      loop
-      playsinline
-      webkit-playsinline
-      crossorigin="anonymous"
-    ></video>
+<!-- TARGET 1 -->
+<a-entity
+  mindar-image-target="targetIndex: 1"
+  dynamic-video="name: Canoa; src: ./assets/videos/canoa.webm"
+></a-entity>
 
-    <video
-      id="canoaVideo"
-      src="./assets/videos/canoa.webm"
-      preload="auto"
-      autoplay
-      muted
-      loop
-      playsinline
-      webkit-playsinline
-      crossorigin="anonymous"
-    ></video>
+<!-- TARGET 2 -->
+<a-entity
+  mindar-image-target="targetIndex: 2"
+  dynamic-video="name: Cacao; src: ./assets/videos/cacao.webm"
+></a-entity>
 
-    <video
-      id="cacaoVideo"
-      src="./assets/videos/cacao.webm"
-      preload="auto"
-      autoplay
-      muted
-      loop
-      playsinline
-      webkit-playsinline
-      crossorigin="anonymous"
-    ></video>
+<!-- TARGET 3 -->
+<a-entity
+  mindar-image-target="targetIndex: 3"
+  dynamic-video="name: Manos; src: ./assets/videos/manos.webm"
+></a-entity>
 
-    <video
-      id="manosVideo"
-      src="./assets/videos/manos.webm"
-      preload="auto"
-      autoplay
-      muted
-      loop
-      playsinline
-      webkit-playsinline
-      crossorigin="anonymous"
-    ></video>
-
-    <video
-      id="pajaroVideo"
-      src="./assets/videos/pajaro.webm"
-      preload="auto"
-      autoplay
-      muted
-      loop
-      playsinline
-      webkit-playsinline
-      crossorigin="anonymous"
-    ></video>
-
-  </a-assets>
-
-  <!-- CAMERA -->
-  <a-camera
-    position="0 0 0"
-    look-controls="enabled: false"
-  ></a-camera>
-
-  <!-- TARGET 0 - NINOS -->
-  <a-entity mindar-image-target="targetIndex: 0" video-handler>
-
-    <a-plane
-      width="1"
-      height="0.56"
-      material="
-        shader: flat;
-        src: #ninosVideo;
-        transparent: true;
-      "
-    ></a-plane>
-
-  </a-entity>
-
-  <!-- TARGET 1 - CANOA -->
-  <a-entity mindar-image-target="targetIndex: 1" video-handler>
-
-    <a-plane
-      width="1"
-      height="0.56"
-      material="
-        shader: flat;
-        src: #canoaVideo;
-        transparent: true;
-      "
-    ></a-plane>
-
-  </a-entity>
-
-  <!-- TARGET 2 - CACAO -->
-  <a-entity mindar-image-target="targetIndex: 2" video-handler>
-
-    <a-plane
-      width="1"
-      height="0.56"
-      material="
-        shader: flat;
-        src: #cacaoVideo;
-        transparent: true;
-      "
-    ></a-plane>
-
-  </a-entity>
-
-  <!-- TARGET 3 - MANOS -->
-  <a-entity mindar-image-target="targetIndex: 3" video-handler>
-
-    <a-plane
-      width="1"
-      height="0.56"
-      material="
-        shader: flat;
-        src: #manosVideo;
-        transparent: true;
-      "
-    ></a-plane>
-
-  </a-entity>
-
-  <!-- TARGET 4 - PAJARO -->
-  <a-entity mindar-image-target="targetIndex: 4" video-handler>
-
-    <a-plane
-      width="1"
-      height="0.56"
-      material="
-        shader: flat;
-        src: #pajaroVideo;
-        transparent: true;
-      "
-    ></a-plane>
-
-  </a-entity>
+<!-- TARGET 4 -->
+<a-entity
+  mindar-image-target="targetIndex: 4"
+  dynamic-video="name: Pajaro; src: ./assets/videos/pajaro.webm"
+></a-entity>
 
 </a-scene>
 
 <script>
 
 const overlay = document.querySelector("#overlay");
+const statusBox = document.querySelector("#status");
 
-AFRAME.registerComponent("video-handler", {
+AFRAME.registerComponent("dynamic-video", {
+
+  schema: {
+
+    name: { type: "string" },
+
+    src: { type: "string" }
+
+  },
 
   init() {
 
-    const videos = this.el.querySelectorAll("video");
+    let video = null;
+
+    let plane = null;
+
+    let loaded = false;
 
     this.el.addEventListener("targetFound", async () => {
 
-      console.log("TARGET DETECTADO");
+      console.log("TARGET DETECTADO:", this.data.name);
 
       overlay.classList.add("hidden");
 
-      // reproducir video correspondiente
-      const materials = this.el.querySelectorAll("a-plane");
+      statusBox.innerHTML = this.data.name;
 
-      materials.forEach(async(plane) => {
+      statusBox.classList.add("show");
 
-        const material = plane.getAttribute("material");
+      // vibración
+      if (navigator.vibrate) {
+        navigator.vibrate(100);
+      }
 
-        const src = material.src;
+      // cargar solo una vez
+      if (!loaded) {
 
-        const video = document.querySelector(src);
+        loaded = true;
 
-        if(video){
+        // VIDEO
+        video = document.createElement("video");
 
-          try {
+        video.src = this.data.src;
 
-            video.currentTime = 0;
+        video.crossOrigin = "anonymous";
 
-            await video.play();
+        video.loop = true;
 
-          } catch(e){
+        video.muted = true;
 
-            console.log(e);
+        video.playsInline = true;
 
-          }
+        video.setAttribute("webkit-playsinline", true);
 
-        }
+        video.preload = "auto";
 
-      });
+        // esperar carga
+        await video.load();
+
+        // PLANO
+        plane = document.createElement("a-plane");
+
+        plane.setAttribute("width", "1");
+
+        plane.setAttribute("height", "0.56");
+
+        plane.setAttribute("position", "0 0 0");
+
+        plane.setAttribute(
+          "material",
+          `
+          shader: flat;
+          src: ${this.data.src};
+          transparent: true;
+          `
+        );
+
+        this.el.appendChild(plane);
+
+      }
+
+      try {
+
+        video.currentTime = 0;
+
+        await video.play();
+
+      } catch(e) {
+
+        console.log("ERROR VIDEO:", e);
+
+      }
 
     });
 
     this.el.addEventListener("targetLost", () => {
 
-      const materials = this.el.querySelectorAll("a-plane");
+      statusBox.classList.remove("show");
 
-      materials.forEach((plane) => {
+      if(video){
 
-        const material = plane.getAttribute("material");
+        video.pause();
 
-        const src = material.src;
-
-        const video = document.querySelector(src);
-
-        if(video){
-
-          video.pause();
-
-        }
-
-      });
+      }
 
     });
 
